@@ -1,0 +1,48 @@
+# Environment & Secrets
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# Operating System Files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Python / Backend
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+build/
+dist/
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Node.js / Frontend
+node_modules/
+.next/
+out/
+build/
+dist/
+.npm
+.yarn/
+*.tsbuildinfo
+next-env.d.ts
+
+# IDEs & Editors
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Docker / Logs
+*.log
+docker-compose.override.yml
