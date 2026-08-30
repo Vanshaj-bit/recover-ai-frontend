@@ -1,5 +1,3 @@
-
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -453,7 +451,7 @@ export default function DashboardPage() {
                   <div className="bg-slate-900/50 p-4 rounded-lg border border-slate-700/50">
                     <p className="text-xs text-slate-400 uppercase tracking-wider font-semibold mb-2">Suggested Message</p>
                     <p className="text-sm text-slate-300 italic leading-relaxed">
-                      "{selectedPayment.metadata_obj.personalized_message}"
+                      &quot;{selectedPayment.metadata_obj.personalized_message}&quot;
                     </p>
                   </div>
                 </div>
@@ -467,4 +465,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-
