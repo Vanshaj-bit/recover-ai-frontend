@@ -1,9 +1,25 @@
+Here is the complete, final version of your `DashboardPage` code. You can copy this entire block and paste it directly into your file, completely replacing what is currently there.
+
+Make sure to swap out `"YOUR_RAZORPAY_TEST_KEY"` with your actual key on **line 71** before you test it!
+
+```tsx
 'use client';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import API from '@/lib/api';
 import { Users, CreditCard, LogOut, Plus, DollarSign, Settings as SettingsIcon, LayoutDashboard, ShieldAlert } from 'lucide-react';
+
+// Load Razorpay Script Dynamically
+const loadRazorpayScript = () => {
+  return new Promise((resolve) => {
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+};
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -36,7 +52,6 @@ export default function DashboardPage() {
         return;
       }
 
-      // Test requests individually to catch exact error source
       try {
         const profileRes = await API.get('/auth/me');
         setMerchant(profileRes.data);
@@ -79,14 +94,98 @@ export default function DashboardPage() {
     }
   };
 
+  const displayRazorpay = async (orderData: any, customerData: any) => {
+    const res = await loadRazorpayScript();
+    if (!res) {
+      alert("Razorpay SDK failed to load. Are you online?");
+      return;
+    }
+
+    const options = {
+      key: "YOUR_RAZORPAY_TEST_KEY", // <-- REPLACE THIS WITH YOUR RZP TEST KEY
+      amount: orderData.amount, 
+      currency: "INR",
+      name: "RecoverAI",
+      description: "Test Transaction",
+      order_id: orderData.razorpay_order_id,
+      
+      handler: function (response: any) {
+        console.log("Payment Succeeded!", response);
+        fetchData(); // Refresh dashboard on success
+      },
+      prefill: {
+        name: customerData.name,
+        email: customerData.email,
+        contact: customerData.phone || "9999999999"
+      },
+      theme: {
+        color: "#6C7BFF"
+      }
+    };
+
+    // Use (window as any) to bypass TypeScript errors for Razorpay
+    const paymentObject = new (window as any).Razorpay(options);
+
+    // --- CATCHING THE FAILURE TO TRIGGER AI ---
+    paymentObject.on('payment.failed', async function (response: any) {
+      console.error("Payment Failed!", response.error);
+
+      const mockWebhookPayload = {
+        event: "payment.failed",
+        payload: {
+          payment: {
+            entity: {
+              order_id: response.error.metadata.order_id,
+              id: response.error.metadata.payment_id,
+              method: "card", 
+              error_code: response.error.reason,
+              error_description: response.error.description
+            }
+          }
+        }
+      };
+
+      try {
+        await fetch(`https://recover-ai-backend-izrn.onrender.com/api/v1/payments/webhook`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(mockWebhookPayload)
+        });
+        
+        console.log("AI Agent Triggered Successfully!");
+        fetchData(); // Instantly refresh the dashboard to show AI results!
+        
+      } catch (err) {
+        console.error("Failed to trigger webhook", err);
+      }
+    });
+
+    paymentObject.open();
+  };
+
   const handleCreateOrder = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const amountInPaise = Math.round(parseFloat(orderAmount) * 100);
-      await API.post('/payments/orders', { customer_id: selectedCustomerId, amount: amountInPaise, currency: 'INR' });
+      
+      // 1. Create the order in your backend
+      const res = await API.post('/payments/orders', { 
+        customer_id: selectedCustomerId, 
+        amount: amountInPaise, 
+        currency: 'INR' 
+      });
+      
       setOrderAmount('');
-      fetchData();
-      alert('Order generated successfully!');
+      
+      // 2. Find the selected customer's details for Razorpay prefill
+      const customerData = customers.find(c => c.id === selectedCustomerId) || { 
+        name: 'Test Customer', 
+        email: 'test@example.com' 
+      };
+      
+      // 3. Open Razorpay!
+      await displayRazorpay(res.data, customerData);
+
     } catch (err: any) {
       alert(err.response?.data?.detail || 'Failed to create order');
     }
@@ -371,3 +470,5 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+```
