@@ -97,7 +97,7 @@ export default function DashboardPage() {
     }
 
     const options = {
-      key: "YOUR_RAZORPAY_TEST_KEY", // <-- REPLACE THIS WITH YOUR RZP TEST KEY
+      key: "rzp_test_TUNGK6FdVdDVGi", // <-- REPLACE THIS WITH YOUR RZP TEST KEY
       amount: orderData.amount, 
       currency: "INR",
       name: "RecoverAI",
