@@ -1,8 +1,5 @@
-Here is the complete, final version of your `DashboardPage` code. You can copy this entire block and paste it directly into your file, completely replacing what is currently there.
 
-Make sure to swap out `"YOUR_RAZORPAY_TEST_KEY"` with your actual key on **line 71** before you test it!
 
-```tsx
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -471,4 +468,3 @@ export default function DashboardPage() {
   );
 }
 
-```
