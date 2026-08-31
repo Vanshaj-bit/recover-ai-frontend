@@ -94,7 +94,7 @@ export default function DashboardPage() {
     }
 
     const options = {
-      key: "rzp_test_yourActualKeyHere", // <-- Ensure your real key is here
+      key: "rzp_test_TWHrf3iU1Mfexo", // <-- Ensure your real key is here
       amount: orderData.amount, 
       currency: "INR",
       name: "RecoverAI",
